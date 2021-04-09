@@ -2,10 +2,9 @@
 
 #include "ofMain.h"
 
-struct Agent {
-	ofVec2f pos;
-	ofVec2f vel;
-	ofVec4f col;
+struct Cell {
+	float a;
+	float b;
 };
 
 class ofApp : public ofBaseApp{
@@ -30,7 +29,7 @@ class ofApp : public ofBaseApp{
 	ofShader shader;
 	ofShader compute;
 
-	vector<Agent> agents;
-	ofBufferObject agentBuffer;
-	ofTexture trails;
+	vector<Cell> cells;
+	ofBufferObject cellBuffer;
+
 };

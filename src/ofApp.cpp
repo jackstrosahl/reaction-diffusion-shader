@@ -1,49 +1,41 @@
 #include "ofApp.h"
 
-const int NA = 100000;
+int NA;
 const float AGENT_SPEED = 1;
+glm::vec2 ssize;
 //--------------------------------------------------------------
 void ofApp::setup(){
+	NA = ofGetWidth() * ofGetHeight();
+	printf("%i\n", NA); 
 	shader.load("vert.glsl", "frag.glsl");
+	ssize = ofGetWindowSize();
 
-	agents.resize(NA);
-	for (auto &agent: agents) {
-		agent.pos.set(ofRandomWidth(), ofRandomHeight());
-		const float a = ofRandom(TWO_PI);
-		agent.vel.set(AGENT_SPEED * cos(a), AGENT_SPEED * sin(a));
-		agent.col.set(ofRandom(1.0), ofRandom(1.0), ofRandom(1.0), 1.0);
+	cells.resize(NA);
+	int breg = 1000;
+	for (int x = 0; x < ofGetWidth(); x++) {
+		for (int y = 0; y < ofGetHeight(); y++) {
+			Cell cell = cells[x + y * ofGetWidth()];
+			cell.a = 1;
+			cell.b = x<breg && y<breg ? 1 : 0;
+		}
 	}
-	agentBuffer.allocate(agents, GL_DYNAMIC_DRAW);
+	cellBuffer.allocate(cells, GL_DYNAMIC_DRAW);
 
-	compute.loadCompute("comp.glsl");
-	
-
-	trails.allocate(ofGetWidth(), ofGetHeight(), GL_RGBA8);
-	trails.bindAsImage(0, GL_READ_WRITE);
-	agentBuffer.bindBase(GL_SHADER_STORAGE_BUFFER, 1);
+	cellBuffer.bindBase(GL_SHADER_STORAGE_BUFFER, 0);
 }
 
 //--------------------------------------------------------------
 void ofApp::update(){
-
-	ofVec2f ssize;
-	ssize.set(ofGetWidth(), ofGetHeight());
-	compute.begin();
-	compute.setUniform2f("ssize", ssize);
-	compute.dispatchCompute(NA, 1, 1);
-	compute.end();
+	shader.begin();
+	shader.setUniform2f("ssize", ssize);
+	shader.end();
 }
 
 //--------------------------------------------------------------
 void ofApp::draw(){
-	
-	/*
 	shader.begin();
 	ofDrawRectangle(0, 0, ofGetWidth(), ofGetHeight());
 	shader.end();
-	*/
-
-	trails.draw(0, 0, ofGetWidth(), ofGetHeight());
 }
 
 //--------------------------------------------------------------
